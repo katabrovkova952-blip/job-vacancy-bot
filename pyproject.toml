@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+exclude = ["**/migrations/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "PIE", "SIM", "B"]
+ignore = ["RUF012"]
+
+[tool.ruff.format]
+quote-style = "single"

@@ -1,0 +1,79 @@
+services:
+  db:
+    image: postgres:18.4
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+
+  web:
+    build: .
+    image: telegrambot
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  celery:
+    image: telegrambot
+    command: celery -A config worker -l info
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - web
+    restart: unless-stopped
+
+  beat:
+    image: telegrambot
+    command: celery -A config beat -l info
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - web
+    restart: unless-stopped
+
+  bot:
+    image: telegrambot
+    command: python manage.py runbot
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - web
+#    restart: unless-stopped
+
+volumes:
+  postgres_data:
