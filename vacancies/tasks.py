@@ -1,7 +1,8 @@
 from celery import shared_task
 
+from vacancies.sources.dou import fetch_dou_vacancies
+
 
 @shared_task
-def ping() -> str:
-    print('Привіт з Celery!', flush=True)
-    return 'pong'
+def fetch_vacancies() -> int:
+    return fetch_dou_vacancies()
