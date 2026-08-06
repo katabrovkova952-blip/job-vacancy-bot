@@ -95,18 +95,11 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
-
-
-# CELERY_BEAT_SCHEDULE = {
-#     'fetch-vacancies-hourly': {
-#         'task': 'vacancies.tasks.fetch_dou',
-#         'schedule': crontab(minute='*/30'),
-#         'options': {'expires': timedelta(minutes=45).total_seconds()},
-#     },
-# }
-
 
 
 CELERY_BEAT_SCHEDULE = {

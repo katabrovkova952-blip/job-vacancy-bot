@@ -13,9 +13,11 @@ from bot.handlers import commands_router
 async def set_commands(bot: Bot) -> None:
     commands = [
         BotCommand(command='start', description='Підписатися'),
+        BotCommand(command='filters', description='Налаштувати фільтри'),
+        BotCommand(command='ua', description='українською'),
+        BotCommand(command='en', description='in English'),
         BotCommand(command='pause', description='Поставити на паузу'),
         BotCommand(command='help', description='Довідка'),
-        BotCommand(command='filters', description='Фільтри')
     ]
     await bot.set_my_commands(commands)
 

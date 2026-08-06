@@ -4,7 +4,9 @@ import logging
 from aiogram import Bot
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from django.conf import settings
+from django.templatetags.i18n import language
 
+from bot.texts import t
 from vacancies.models import SentVacancy, Subscriber, Vacancy
 from vacancies.services import build_keywords_condition, parse_keywords
 
@@ -29,12 +31,14 @@ async def send_to_subscriber(bot: Bot, subscriber: Subscriber, text: str) -> boo
         return await send_to_subscriber(bot, subscriber, text)
 
 
-def format_digest(vacancies: list[Vacancy]) -> str:
-    lines = [f'Знайдено нових вакансій: {len(vacancies)}\n']
-    for v in vacancies:
-        company = f' — {v.company}' if v.company else ''
-        lines.append(f'• {v.title}{company}\n{v.url}\n')
-    return '\n'.join(lines)
+def format_digest(vacancies: list[Vacancy], language: str) -> str:
+    lines = [t('digest_header', language, count=str(len(vacancies)))]
+
+    for vacancy in vacancies:
+        company = f' — {vacancy.company}' if vacancy.company else ''
+        lines.append(f'• {vacancy.title}{company}\n{vacancy.url}')
+
+    return '\n\n'.join(lines)
 
 
 async def get_new_vacancies(subscriber: Subscriber) -> list[Vacancy]:
@@ -56,7 +60,7 @@ async def send_digest_to(bot: Bot, subscriber: Subscriber) -> int:
     if not vacancies:
         return 0
 
-    text = format_digest(vacancies)
+    text = format_digest(vacancies, subscriber.language)
     if not await send_to_subscriber(bot, subscriber, text):
         return 0
 

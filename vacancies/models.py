@@ -28,6 +28,11 @@ class Vacancy(models.Model):
 
 
 class Subscriber(models.Model):
+    LANGUAGE_CHOICES = [
+        ('uk', 'Українська'),
+        ('en', 'English'),
+    ]
+    language = models.CharField(max_length=5, default='uk')
     chat_id = models.BigIntegerField(unique=True)
     is_active = models.BooleanField(default=True)
     filters = models.CharField(max_length=300, blank=True, default='')
