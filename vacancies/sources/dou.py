@@ -1,15 +1,19 @@
+import html
+import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
+
 import feedparser
-import html
-from django.utils.html import strip_tags
-import logging
-from vacancies.models import Vacancy
 from django.conf import settings
+from django.utils.html import strip_tags
+
+from vacancies.sources.base import RawVacancy
 
 
 logger = logging.getLogger(__name__)
+
+SOURCE_NAME = 'dou'
 
 
 def extract_external_id(url: str) -> str | None:
@@ -41,40 +45,31 @@ def parse_title(raw: str) -> VacancyInfo:
     return VacancyInfo(position=position, company=company, location=location)
 
 
-def fetch_dou_vacancies() -> int:
+def fetch() -> list[RawVacancy]:
     feed = feedparser.parse(settings.DOU_FEED_URL)
+
     if feed.bozo:
         logger.error('Не вдалося розібрати фід DOU: %s', feed.bozo_exception)
-        return 0
+        return []
 
-    count = 0
+    result = []
     for entry in feed.entries:
         try:
             external_id = extract_external_id(entry.link)
             if external_id is None:
-                logger.warning('Не знайдено id у посиланні: %s', entry.link)
                 continue
 
             info = parse_title(html.unescape(entry.title))
-
-            _, created = Vacancy.objects.get_or_create(
-                source='dou',
+            result.append(RawVacancy(
                 external_id=external_id,
-                defaults={
-                    'title': info.position,
-                    'company': info.company,
-                    'location': info.location,
-                    'url': entry.link,
-                    'description': strip_tags(html.unescape(entry.summary)),
-                    'published_at': datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
-                },
-            )
-            if created:
-                count+=1
-
+                title=info.position,
+                company=info.company,
+                location=info.location,
+                url=entry.link,
+                description=strip_tags(html.unescape(entry.summary)),
+                published_at=datetime(*entry.published_parsed[:6], tzinfo=timezone.utc),
+            ))
         except Exception:
-            logger.exception('Помилка обробки вакансії: %s', entry.get('link'))
-            continue
+            logger.exception('Помилка обробки вакансії DOU')
 
-    logger.info('DOU: збережено %s нових вакансій', count)
-    return count
+    return result

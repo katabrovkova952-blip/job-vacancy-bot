@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Count, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpRequest
 
 from .models import SentVacancy, Subscriber, Vacancy

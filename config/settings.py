@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-from decouple import config
+
 from celery.schedules import crontab
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,8 @@ CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=False, cas
 BOT_TOKEN = config('BOT_TOKEN')
 
 DOU_FEED_URL = config('DOU_FEED_URL', default='https://jobs.dou.ua/vacancies/feeds/')
+
+JOBICY_API_URL = config('JOBICY_API_URL', default='https://jobicy.com/api/v2/remote-jobs?count=50')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -96,10 +99,30 @@ DATABASES = {
 }
 
 
+# CELERY_BEAT_SCHEDULE = {
+#     'fetch-vacancies-hourly': {
+#         'task': 'vacancies.tasks.fetch_dou',
+#         'schedule': crontab(minute='*/30'),
+#         'options': {'expires': timedelta(minutes=45).total_seconds()},
+#     },
+# }
+
+
+
 CELERY_BEAT_SCHEDULE = {
-    'fetch-vacancies-hourly': {
+    'fetch-dou': {
+        'task': 'vacancies.tasks.fetch_dou',
+        'schedule': crontab(minute=0),
+        'options': {'expires': timedelta(minutes=45).total_seconds()},
+    },
+    'fetch-jobicy': {
+        'task': 'vacancies.tasks.fetch_jobicy',
+        'schedule': crontab(minute=5),
+        'options': {'expires': timedelta(minutes=45).total_seconds()},
+    },
+    'send-digests': {
         'task': 'vacancies.tasks.send_vacancy_digests',
-        'schedule': crontab(minute='*/30'),
+        'schedule': crontab(minute=10),
         'options': {'expires': timedelta(minutes=45).total_seconds()},
     },
 }

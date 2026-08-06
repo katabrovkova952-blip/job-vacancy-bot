@@ -5,8 +5,8 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from django.conf import settings
 
-from vacancies.models import Subscriber, SentVacancy, Vacancy
-from vacancies.services import parse_keywords, build_keywords_condition
+from vacancies.models import SentVacancy, Subscriber, Vacancy
+from vacancies.services import build_keywords_condition, parse_keywords
 
 logger = logging.getLogger(__name__)
 
@@ -80,35 +80,3 @@ async def send_digests() -> int:
 
     logger.info('Розсилка завершена, всього надіслано: %s', total)
     return total
-
-
-# async def send_digests() -> int:
-#     bot = Bot(token=settings.BOT_TOKEN)
-#     total = 0
-#
-#     try:
-#         async for subscriber in Subscriber.objects.filter(is_active=True):
-#             vacancies = await get_new_vacancies(subscriber)
-#
-#             if not vacancies:
-#                 continue
-#
-#             text = format_digest(vacancies)
-#             sent_ok = await send_to_subscriber(bot, subscriber, text)
-#
-#             if not sent_ok:
-#                 continue
-#
-#             await SentVacancy.objects.abulk_create(
-#                 [SentVacancy(subscriber=subscriber, vacancy=vacancy) for vacancy in vacancies],
-#                 ignore_conflicts=True,
-#             )
-#             total += len(vacancies)
-#             logger.info('Надіслано %s вакансій підписнику %s', len(vacancies), subscriber.chat_id)
-#
-#             await asyncio.sleep(0.05)
-#     finally:
-#         await bot.session.close()
-#
-#     logger.info('Розсилка завершена, всього надіслано: %s', total)
-#     return total

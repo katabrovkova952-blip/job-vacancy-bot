@@ -3,12 +3,11 @@ import logging
 from typing import Any
 
 from aiogram import Bot, Dispatcher
+from aiogram.types import BotCommand
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from bot.handlers import commands_router
-
-from aiogram.types import BotCommand
 
 
 async def set_commands(bot: Bot) -> None:

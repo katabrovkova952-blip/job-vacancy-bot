@@ -1,16 +1,14 @@
 import logging
 
 from aiogram import Router
-from aiogram.filters import CommandStart, Command, CommandObject
+from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
 from bot.sender import send_digest_to
-from vacancies.models import Subscriber, Vacancy
-
-from vacancies.services import parse_keywords, build_keywords_condition
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-
+from vacancies.models import Subscriber
+from vacancies.services import parse_keywords
 
 logger = logging.getLogger(__name__)
 
