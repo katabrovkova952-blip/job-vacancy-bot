@@ -28,6 +28,10 @@ CELERY_BROKER_URL = config('REDIS_URL')
 
 CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=False, cast=bool)
 
+BOT_TOKEN = config('BOT_TOKEN')
+
+DOU_FEED_URL = config('DOU_FEED_URL', default='https://jobs.dou.ua/vacancies/feeds/')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -94,8 +98,8 @@ DATABASES = {
 
 CELERY_BEAT_SCHEDULE = {
     'fetch-vacancies-hourly': {
-        'task': 'vacancies.tasks.fetch_vacancies',
-        'schedule': crontab(minute=0),
+        'task': 'vacancies.tasks.send_vacancy_digests',
+        'schedule': crontab(minute='*/30'),
         'options': {'expires': timedelta(minutes=45).total_seconds()},
     },
 }

@@ -2,12 +2,12 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import feedparser
-from django.utils.html import strip_tags, html
+import html
+from django.utils.html import strip_tags
 import logging
 from vacancies.models import Vacancy
+from django.conf import settings
 
-
-DOU_URL = 'https://jobs.dou.ua/vacancies/feeds/?exp=0-1&remote&category=Python'
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def parse_title(raw: str) -> VacancyInfo:
 
 
 def fetch_dou_vacancies() -> int:
-    feed = feedparser.parse(DOU_URL)
+    feed = feedparser.parse(settings.DOU_FEED_URL)
     if feed.bozo:
         logger.error('Не вдалося розібрати фід DOU: %s', feed.bozo_exception)
         return 0
@@ -55,7 +55,7 @@ def fetch_dou_vacancies() -> int:
                 logger.warning('Не знайдено id у посиланні: %s', entry.link)
                 continue
 
-            info = parse_title(entry.title)
+            info = parse_title(html.unescape(entry.title))
 
             _, created = Vacancy.objects.get_or_create(
                 source='dou',
