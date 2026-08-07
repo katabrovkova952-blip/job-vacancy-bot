@@ -1,35 +1,35 @@
 import pytest
 
 from vacancies.models import Vacancy
-from vacancies.services import parse_keywords, save_vacancies, build_keywords_condition
+from vacancies.services import build_keywords_condition, parse_keywords, save_vacancies
 
 
 def test_parse_keywords_removes_duplicates():
-    assert parse_keywords("python, django, Python, Django") == ['python', 'django']
+    assert parse_keywords('python, django, Python, Django') == ['python', 'django']
 
 
 def test_parse_keywords_normalizes_case():
-    assert parse_keywords("PYTHON, DjAngo") == ['python', 'django']
+    assert parse_keywords('PYTHON, DjAngo') == ['python', 'django']
 
 
 def test_parse_keywords_comma_separated():
-    assert parse_keywords("python, django") == ['python', 'django']
+    assert parse_keywords('python, django') == ['python', 'django']
 
 
 def test_parse_keywords_removes_spaces():
-    assert parse_keywords("   python,  django  ") == ['python', 'django']
+    assert parse_keywords('   python,  django  ') == ['python', 'django']
 
 
 def test_parse_keywords_empty_line():
-    assert parse_keywords("   ") == []
+    assert parse_keywords('   ') == []
 
 
 def test_parse_keywords_just_commas():
-    assert parse_keywords(",,,,,") == []
+    assert parse_keywords(',,,,,') == []
 
 
 def test_parse_keywords_many_words():
-    assert parse_keywords("backend developer, python engineer") == ["backend developer", "python engineer"]
+    assert parse_keywords('backend developer, python engineer') == ['backend developer', 'python engineer']
 
 
 @pytest.mark.django_db
@@ -66,11 +66,14 @@ def test_filters(raw_vacancy):
 
 @pytest.mark.django_db
 def test_filters_matches_any_keyword(raw_vacancy):
-    save_vacancies('dou', [
-        raw_vacancy(title='Python Backend', external_id='100'),
-        raw_vacancy(title='Django Developer', external_id='101'),
-        raw_vacancy(title='Recruiter', external_id='102'),
-    ])
+    save_vacancies(
+        'dou',
+        [
+            raw_vacancy(title='Python Backend', external_id='100'),
+            raw_vacancy(title='Django Developer', external_id='101'),
+            raw_vacancy(title='Recruiter', external_id='102'),
+        ],
+    )
 
     condition = build_keywords_condition(['python', 'django'])
 

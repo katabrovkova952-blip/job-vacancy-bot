@@ -1,6 +1,6 @@
 import logging
 
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -103,7 +103,7 @@ async def set_language(message: Message, language: str) -> None:
     await message.answer(t('language_changed', language))
 
 
-async def save_filters(message: Message, subscriber: Subscriber, raw: str) -> None:
+async def save_filters(message: Message, bot: Bot, subscriber: Subscriber, raw: str) -> None:
     keywords = parse_keywords(raw)
 
     if not keywords:
@@ -114,13 +114,13 @@ async def save_filters(message: Message, subscriber: Subscriber, raw: str) -> No
     await subscriber.asave(update_fields=['filters'])
     await message.answer(t('filters_updated', subscriber.language, filters=subscriber.filters))
 
-    sent = await send_digest_to(message.bot, subscriber)
+    sent = await send_digest_to(bot, subscriber)
     if not sent:
         await message.answer(t('no_vacancies', subscriber.language))
 
 
 @router.message(Command('filters'))
-async def cmd_filters(message: Message, command: CommandObject, state: FSMContext) -> None:
+async def cmd_filters(message: Message, bot: Bot, command: CommandObject, state: FSMContext) -> None:
     subscriber = await get_subscriber(message)
 
     if subscriber is None:
@@ -128,25 +128,23 @@ async def cmd_filters(message: Message, command: CommandObject, state: FSMContex
         return
 
     if command.args:
-        await save_filters(message, subscriber, command.args)
+        await save_filters(message, bot, subscriber, command.args)
         return
 
     current = subscriber.filters or t('filters_not_set', subscriber.language)
     await message.answer(
-        t('filters_current', subscriber.language, filters=current)
-        + '\n\n'
-        + t('filters_ask', subscriber.language)
+        t('filters_current', subscriber.language, filters=current) + '\n\n' + t('filters_ask', subscriber.language)
     )
     await state.set_state(FilterStates.waiting_for_keywords)
 
 
 @router.message(FilterStates.waiting_for_keywords)
-async def process_keywords(message: Message, state: FSMContext) -> None:
+async def process_keywords(message: Message, bot: Bot, state: FSMContext) -> None:
     subscriber = await get_subscriber(message)
 
     if subscriber is None:
         await state.clear()
         return
 
-    await save_filters(message, subscriber, message.text or '')
+    await save_filters(message, bot, subscriber, message.text or '')
     await state.clear()

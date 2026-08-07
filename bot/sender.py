@@ -4,7 +4,6 @@ import logging
 from aiogram import Bot
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from django.conf import settings
-from django.templatetags.i18n import language
 
 from bot.texts import t
 from vacancies.models import SentVacancy, Subscriber, Vacancy
@@ -13,6 +12,7 @@ from vacancies.services import build_keywords_condition, parse_keywords
 logger = logging.getLogger(__name__)
 
 MAX_VACANCIES_PER_DIGEST = 20
+
 
 async def send_to_subscriber(bot: Bot, subscriber: Subscriber, text: str) -> bool:
     try:
@@ -47,11 +47,9 @@ async def get_new_vacancies(subscriber: Subscriber) -> list[Vacancy]:
         return []
 
     sent_ids = SentVacancy.objects.filter(subscriber=subscriber).values_list('vacancy_id', flat=True)
-    queryset = (
-        Vacancy.objects
-        .filter(build_keywords_condition(keywords))
-        .exclude(id__in=sent_ids)[:MAX_VACANCIES_PER_DIGEST]
-    )
+    queryset = Vacancy.objects.filter(build_keywords_condition(keywords)).exclude(id__in=sent_ids)[
+        :MAX_VACANCIES_PER_DIGEST
+    ]
     return [vacancy async for vacancy in queryset]
 
 

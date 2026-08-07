@@ -8,7 +8,6 @@ from django.utils.html import strip_tags
 
 from vacancies.sources.base import RawVacancy
 
-
 logger = logging.getLogger(__name__)
 
 SOURCE_NAME = 'jobicy'
@@ -34,15 +33,17 @@ def fetch() -> list[RawVacancy]:
 
     for job in data.get('jobs', []):
         try:
-            result.append(RawVacancy(
-                external_id=str(job['id']),
-                title=html.unescape(job['jobTitle']),
-                company=html.unescape(job.get('companyName', '')),
-                location=job.get('jobGeo', ''),
-                url=job['url'],
-                description=strip_tags(html.unescape(job.get('jobExcerpt', ''))),
-                published_at=parse_pub_date(job['pubDate']),
-            ))
+            result.append(
+                RawVacancy(
+                    external_id=str(job['id']),
+                    title=html.unescape(job['jobTitle']),
+                    company=html.unescape(job.get('companyName', '')),
+                    location=job.get('jobGeo', ''),
+                    url=job['url'],
+                    description=strip_tags(html.unescape(job.get('jobExcerpt', ''))),
+                    published_at=parse_pub_date(job['pubDate']),
+                )
+            )
         except Exception:
             logger.exception('Помилка обробки вакансії Jobicy: %s', job.get('id'))
 

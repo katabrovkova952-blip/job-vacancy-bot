@@ -38,5 +38,6 @@ async def run_bot() -> None:
 
 class Command(BaseCommand):
     help = 'Запускає Telegram-бота'
+
     def handle(self, *args: Any, **options: Any) -> None:
         asyncio.run(run_bot())

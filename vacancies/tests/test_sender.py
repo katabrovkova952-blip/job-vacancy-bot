@@ -1,9 +1,9 @@
 import pytest
-
-from bot.sender import get_new_vacancies, MAX_VACANCIES_PER_DIGEST
-from vacancies.models import SentVacancy, Vacancy, Subscriber
-from vacancies.services import save_vacancies
 from asgiref.sync import sync_to_async
+
+from bot.sender import MAX_VACANCIES_PER_DIGEST, get_new_vacancies
+from vacancies.models import SentVacancy, Subscriber, Vacancy
+from vacancies.services import save_vacancies
 
 
 @pytest.mark.django_db(transaction=True)
@@ -30,10 +30,7 @@ async def test_get_new_vacancies_returns_empty_without_filters(raw_vacancy):
 
 @pytest.mark.django_db(transaction=True)
 async def test_get_new_vacancies_respects_limit(subscriber, raw_vacancy):
-    data = [
-        raw_vacancy(title='Python Developer', external_id=str(i))
-        for i in range(25)
-    ]
+    data = [raw_vacancy(title='Python Developer', external_id=str(i)) for i in range(25)]
     await sync_to_async(save_vacancies)('dou', data)
 
     result = await get_new_vacancies(subscriber)

@@ -1,9 +1,9 @@
+import logging
+
 from django.db.models import Q
 
-import logging
 from vacancies.models import Vacancy
 from vacancies.sources.base import RawVacancy
-
 
 logger = logging.getLogger(__name__)
 

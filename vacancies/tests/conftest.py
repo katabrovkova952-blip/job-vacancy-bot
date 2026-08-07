@@ -1,7 +1,7 @@
 import pytest
 from django.utils import timezone
 
-from vacancies.models import Subscriber, Vacancy
+from vacancies.models import Subscriber
 from vacancies.sources.base import RawVacancy
 
 
@@ -17,6 +17,7 @@ def raw_vacancy():
             description='Опис',
             published_at=timezone.now(),
         )
+
     return _make
 
 

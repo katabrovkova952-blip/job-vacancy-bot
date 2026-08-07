@@ -1,3 +1,4 @@
+import calendar
 import html
 import logging
 import re
@@ -9,7 +10,6 @@ from django.conf import settings
 from django.utils.html import strip_tags
 
 from vacancies.sources.base import RawVacancy
-
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class VacancyInfo:
     position: str
     company: str
     location: str
+
 
 def parse_title(raw: str) -> VacancyInfo:
     position = raw.strip()
@@ -59,16 +60,24 @@ def fetch() -> list[RawVacancy]:
             if external_id is None:
                 continue
 
+            published_parsed = getattr(entry, 'published_parsed', None)
+            if published_parsed is None:
+                continue
+
+            published_at = datetime.fromtimestamp(calendar.timegm(published_parsed), tz=timezone.utc)
+
             info = parse_title(html.unescape(entry.title))
-            result.append(RawVacancy(
-                external_id=external_id,
-                title=info.position,
-                company=info.company,
-                location=info.location,
-                url=entry.link,
-                description=strip_tags(html.unescape(entry.summary)),
-                published_at=datetime(*entry.published_parsed[:6], tzinfo=timezone.utc),
-            ))
+            result.append(
+                RawVacancy(
+                    external_id=external_id,
+                    title=info.position,
+                    company=info.company,
+                    location=info.location,
+                    url=entry.link,
+                    description=strip_tags(html.unescape(entry.summary)),
+                    published_at=published_at,
+                )
+            )
         except Exception:
             logger.exception('Помилка обробки вакансії DOU')
 

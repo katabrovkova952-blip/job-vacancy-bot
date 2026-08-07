@@ -1,0 +1,58 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: jobbot
+          POSTGRES_USER: jobbot
+          POSTGRES_PASSWORD: jobbot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run Ruff
+        run: ruff check .
+
+      - name: Run mypy
+        env:
+          SECRET_KEY: test-secret-key
+          DEBUG: 'True'
+          DB_NAME: jobbot
+          DB_USER: jobbot
+          DB_PASSWORD: jobbot
+          DB_HOST: localhost
+          DB_PORT: 5432
+        run: mypy vacancies bot config
+
+      - name: Run tests
+        env:
+          SECRET_KEY: test-secret-key
+          DEBUG: 'True'
+          DB_NAME: jobbot
+          DB_USER: jobbot
+          DB_PASSWORD: jobbot
+          DB_HOST: localhost
+          DB_PORT: 5432
+        run: pytest

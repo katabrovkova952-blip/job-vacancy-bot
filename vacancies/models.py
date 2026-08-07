@@ -2,11 +2,7 @@ from django.db import models
 
 
 class Vacancy(models.Model):
-    SOURCE_CHOICES = [
-        ('dou', 'DOU'),
-        ('djinni', 'Djinni'),
-        ('jobicy', 'Jobicy')
-    ]
+    SOURCE_CHOICES = [('dou', 'DOU'), ('djinni', 'Djinni'), ('jobicy', 'Jobicy')]
     source = models.CharField(max_length=20, choices=SOURCE_CHOICES)
     external_id = models.CharField(max_length=50)
     title = models.CharField(max_length=200)
@@ -19,9 +15,7 @@ class Vacancy(models.Model):
 
     class Meta:
         ordering = ['-published_at']
-        constraints = [models.UniqueConstraint(
-            fields=['source', 'external_id'], name='unique_vacancy_per_source'
-        )]
+        constraints = [models.UniqueConstraint(fields=['source', 'external_id'], name='unique_vacancy_per_source')]
 
     def __str__(self) -> str:
         return self.title
@@ -40,6 +34,7 @@ class Subscriber(models.Model):
     def __str__(self) -> str:
         return str(self.chat_id)
 
+
 class SentVacancy(models.Model):
     subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE, related_name='sent_vacancies')
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='sent_to')
@@ -47,9 +42,7 @@ class SentVacancy(models.Model):
 
     class Meta:
         ordering = ['-sent_at']
-        constraints = [models.UniqueConstraint(
-            fields=['subscriber', 'vacancy'], name='unique_subscriber_vacancy'
-        )]
+        constraints = [models.UniqueConstraint(fields=['subscriber', 'vacancy'], name='unique_subscriber_vacancy')]
 
     def __str__(self) -> str:
         return f'{self.vacancy.title}, {self.subscriber.chat_id}'

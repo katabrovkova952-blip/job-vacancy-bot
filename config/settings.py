@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+
 from datetime import timedelta
 from pathlib import Path
 
@@ -25,18 +26,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
-CELERY_BROKER_URL = config('REDIS_URL')
+CELERY_BROKER_URL = config('REDIS_URL', default='')
 
 CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=False, cast=bool)
 
-BOT_TOKEN = config('BOT_TOKEN')
+BOT_TOKEN = config('BOT_TOKEN', default='')
 
 DOU_FEED_URL = config('DOU_FEED_URL', default='https://jobs.dou.ua/vacancies/feeds/')
 
 JOBICY_API_URL = config('JOBICY_API_URL', default='https://jobicy.com/api/v2/remote-jobs?count=50')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
@@ -94,7 +95,7 @@ DATABASES = {
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5433'),
+        'PORT': config('DB_PORT', default='5432'),
         'OPTIONS': {
             'client_encoding': 'UTF8',
             'application_name': 'jobbot',
