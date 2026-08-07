@@ -1,6 +1,8 @@
 services:
   db:
     image: postgres:18.4
+    ports:
+      - "5433:5432"
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -11,6 +13,8 @@ services:
 
   redis:
     image: redis:alpine
+    ports:
+      - "6379:6379"
     restart: unless-stopped
 
   web:
@@ -22,6 +26,7 @@ services:
     env_file: .env
     environment:
       - DB_HOST=db
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - .:/app
@@ -36,6 +41,7 @@ services:
     env_file: .env
     environment:
       - DB_HOST=db
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - .:/app
@@ -51,6 +57,7 @@ services:
     env_file: .env
     environment:
       - DB_HOST=db
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - .:/app
@@ -66,6 +73,7 @@ services:
     env_file: .env
     environment:
       - DB_HOST=db
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - .:/app
