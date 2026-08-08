@@ -1,6 +1,6 @@
 # JobBot
 
-![CI](https://github.com/katabrovkova952-blip/job-vacancy-bot/actions/workflows/tests.yml/badge.svg)
+ ![CI](https://github.com/katabrovkova952-blip/job-vacancy-bot/actions/workflows/tests.yml/badge.svg)
 
 A Telegram bot that watches job boards and pushes new vacancies to you within minutes of publication — filtered by your own keywords, so you only get what you're actually looking for.
 
