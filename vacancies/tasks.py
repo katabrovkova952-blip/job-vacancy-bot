@@ -1,9 +1,14 @@
 import asyncio
 
-from celery import shared_task
+from celery import chain, shared_task
 
 from bot.sender import send_digests
 from vacancies.services import save_vacancies
+
+
+@shared_task
+def poll_and_notify() -> None:
+    chain(fetch_dou.si(), fetch_jobicy.si(), send_vacancy_digests.si()).delay()
 
 
 @shared_task

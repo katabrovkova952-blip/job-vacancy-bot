@@ -13,8 +13,10 @@ logger = logging.getLogger(__name__)
 
 MAX_VACANCIES_PER_DIGEST = 20
 
+MAX_RETRY_ATTEMPTS = 3
 
-async def send_to_subscriber(bot: Bot, subscriber: Subscriber, text: str) -> bool:
+
+async def send_to_subscriber(bot: Bot, subscriber: Subscriber, text: str, attempt: int = 0) -> bool:
     try:
         await bot.send_message(chat_id=subscriber.chat_id, text=text)
         return True
@@ -26,9 +28,13 @@ async def send_to_subscriber(bot: Bot, subscriber: Subscriber, text: str) -> boo
         return False
 
     except TelegramRetryAfter as e:
+        if attempt >= MAX_RETRY_ATTEMPTS:
+            logger.warning('Ліміт Telegram не зник після %s спроб, пропускаємо %s', attempt, subscriber.chat_id)
+            return False
+
         logger.warning('Ліміт Telegram, чекаємо %s с', e.retry_after)
         await asyncio.sleep(e.retry_after)
-        return await send_to_subscriber(bot, subscriber, text)
+        return await send_to_subscriber(bot, subscriber, text, attempt + 1)
 
 
 def format_digest(vacancies: list[Vacancy], language: str) -> str:
@@ -47,9 +53,12 @@ async def get_new_vacancies(subscriber: Subscriber) -> list[Vacancy]:
         return []
 
     sent_ids = SentVacancy.objects.filter(subscriber=subscriber).values_list('vacancy_id', flat=True)
-    queryset = Vacancy.objects.filter(build_keywords_condition(keywords)).exclude(id__in=sent_ids)[
-        :MAX_VACANCIES_PER_DIGEST
-    ]
+    queryset = (
+        Vacancy.objects.filter(build_keywords_condition(keywords))
+        .exclude(id__in=sent_ids)
+        .order_by('-published_at')[:MAX_VACANCIES_PER_DIGEST]
+    )
+
     return [vacancy async for vacancy in queryset]
 
 
@@ -75,7 +84,10 @@ async def send_digests() -> int:
 
     try:
         async for subscriber in Subscriber.objects.filter(is_active=True):
-            total += await send_digest_to(bot, subscriber)
+            try:
+                total += await send_digest_to(bot, subscriber)
+            except Exception:
+                logger.exception('Помилка розсилки для %s', subscriber.chat_id)
             await asyncio.sleep(0.05)
     finally:
         await bot.session.close()

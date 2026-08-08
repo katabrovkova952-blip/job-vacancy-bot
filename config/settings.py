@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from datetime import timedelta
 from pathlib import Path
 
 from celery.schedules import crontab
@@ -105,20 +104,10 @@ DATABASES = {
 
 
 CELERY_BEAT_SCHEDULE = {
-    'fetch-dou': {
-        'task': 'vacancies.tasks.fetch_dou',
-        'schedule': crontab(minute=0),
-        'options': {'expires': timedelta(minutes=45).total_seconds()},
-    },
-    'fetch-jobicy': {
-        'task': 'vacancies.tasks.fetch_jobicy',
-        'schedule': crontab(minute=5),
-        'options': {'expires': timedelta(minutes=45).total_seconds()},
-    },
-    'send-digests': {
-        'task': 'vacancies.tasks.send_vacancy_digests',
-        'schedule': crontab(minute=10),
-        'options': {'expires': timedelta(minutes=45).total_seconds()},
+    'poll-and-notify': {
+        'task': 'vacancies.tasks.poll_and_notify',
+        'schedule': crontab(minute='*/5'),
+        'options': {'expires': 240},
     },
 }
 
