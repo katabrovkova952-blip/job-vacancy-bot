@@ -1,6 +1,6 @@
 # JobBot
 
-[![CI](https://github.com/katabrovkova952-blip/job-vacancy-bot/actions/workflows/tests.yml/badge.svg)](https://github.com/katabrovkova952-blip/job-vacancy-bot/actions/workflows/tests.yml)
+[![CI](https://github.com/katerynabrovkova/job-vacancy-bot/actions/workflows/tests.yml/badge.svg)](https://github.com/katerynabrovkova/job-vacancy-bot/actions/workflows/tests.yml)
 
 A Telegram bot that watches job boards and pushes new vacancies to you within minutes of publication — filtered by your own keywords, so you only get what you're actually looking for.
 
@@ -111,7 +111,7 @@ docker compose exec web pytest
 
 1. Clone the repository:
 ```
-git clone https://github.com/katabrovkova952-blip/job-vacancy-bot.git
+git clone https://github.com/katerynabrovkova/job-vacancy-bot.git
 cd job-vacancy-bot
 ```
 
