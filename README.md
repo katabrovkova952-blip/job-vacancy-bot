@@ -18,36 +18,7 @@ Job hunting rewards being early. The usual routine is refreshing several job boa
 
 ## Example
 
-![Demo](docs/demo.png)
-
-```
-You  ▸  /start
-
-Bot  ▸  Hi! I'll send you new vacancies as they appear.
-        Set your keywords with /filters to get started.
-
-You  ▸  /filters
-
-Bot  ▸  Your current filters: (none yet)
-        Send new keywords separated by commas.
-
-You  ▸  python, django, junior
-
-Bot  ▸  Filters updated: python, django, junior
-
-        ── a few minutes later ──
-
-Bot  ▸  3 new vacancies
-
-        • Junior Python Developer — SoftServe
-          https://jobs.dou.ua/companies/...
-
-        • Django Backend Engineer (Remote) — Jobicy
-          https://jobicy.com/jobs/...
-
-        • Python Developer (Trainee) — Intellias
-          https://jobs.dou.ua/companies/...
-```
+![Demo](docs/demo1.png)
 
 ## How it works
 
